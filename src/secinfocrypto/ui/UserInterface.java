@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import secinfocrypto.signature.Keys;
 import secinfocrypto.signature.SignatureAlgorithm;
+import secinfocrypto.signature.SignatureChecker;
 import secinfocrypto.signature.SignatureGenerator;
 import secinfocrypto.signature.SignatureListener;
 
@@ -49,6 +50,7 @@ public class UserInterface extends javax.swing.JPanel {
         @Override
         public void setResult(byte[] result) {
             javax.swing.JOptionPane.showMessageDialog(this.parent, String.valueOf(result.length) +  " bytes");
+            signature = result;
         }
     }
     
@@ -202,13 +204,16 @@ public class UserInterface extends javax.swing.JPanel {
     }//GEN-LAST:event_jButtonLogoutActionPerformed
 
     private void jButtonGenerateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGenerateActionPerformed
-
         SignatureGenerator generator = new SignatureGenerator();
         generator.setSignatureListener(new GeneratorListener(this));
         generator.execute(fileName, keys.getPrivateKey(), SignatureAlgorithm.ALGORITHMS[1]);
     }//GEN-LAST:event_jButtonGenerateActionPerformed
 
     private void jButtonCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCheckActionPerformed
+        SignatureChecker checker = new SignatureChecker();
+        checker.setSignatureListener(new CheckerListener(this));
+        checker.execute(fileName, signature, keys.getPublicKey(), SignatureAlgorithm.ALGORITHMS[1]);        
+        
     }//GEN-LAST:event_jButtonCheckActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonCheck;
