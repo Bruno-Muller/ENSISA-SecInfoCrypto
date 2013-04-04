@@ -18,7 +18,8 @@ public class SignatureFile {
     private String algorithm;
     private Date lastChecked;
     
-    SignatureFile() {
+    public SignatureFile(File file) {
+        this.file = file;
     }
 
     public void setFile(File file) {
@@ -30,18 +31,22 @@ public class SignatureFile {
         return file;
     }
 
+    public void setAlgorithm(String algorithm) {
+        this.algorithm = algorithm;
+    }
+    
+    public String getAlgorithm() {
+        return this.algorithm;
+    }
+    
     public byte[] getSignature() {
         return signature;
     }
-
+    
     public void setSignature(String algorithm, byte[] signature) {
         this.algorithm = algorithm;
         this.signature = signature;
         this.lastChecked = new Date();
-    }
-
-    public String getAlgorithm() {
-        return algorithm;
     }
 
     public Date getLastChecked() {

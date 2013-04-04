@@ -6,17 +6,21 @@ package secinfocrypto.ui;
 
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.table.AbstractTableModel;
 import secinfocrypto.signature.Keys;
 import secinfocrypto.signature.SignatureAlgorithm;
 import secinfocrypto.signature.SignatureChecker;
+import secinfocrypto.signature.SignatureFile;
 import secinfocrypto.signature.SignatureGenerator;
-import secinfocrypto.signature.SignatureListener;
 
 /**
  *
@@ -25,70 +29,128 @@ import secinfocrypto.signature.SignatureListener;
 public class UserInterface extends javax.swing.JPanel {
 
     private JFrame parent;
-    private DefaultListModel listModel, algorithm;
     private Keys keys;
     byte[] signature;
-    String fileName = "/Users/bruno/Desktop/Programmation_Android.pdf";
+    private ArrayList<SignatureFile> files;
+    private MyModel model;
 
-    public class GeneratorListener implements SignatureListener<byte[]> {
+    class MyModel extends AbstractTableModel {
+
+        private HashMap<SignatureFile, Boolean> isFileSelected;
+        private String[] columnName = {"Selected", "Name", "Last date check date", "Algorithm"};
         
-        JPanel parent;
-        GeneratorListener(JPanel parent) {
-            this.parent = parent;
+        MyModel() {
+            isFileSelected = new HashMap<SignatureFile, Boolean>();
         }
-
-        @Override
-        public void setProgress(int i) {
-            jProgressBar1.setValue(i);
-        }
-
-        @Override
-        public void setProcessInformation(String string) {
-            jLabelCurrentAction.setText(string);
-        }
-
-        @Override
-        public void setResult(byte[] result) {
-            javax.swing.JOptionPane.showMessageDialog(this.parent, String.valueOf(result.length) +  " bytes");
-            signature = result;
-        }
-    }
-    
-        public class CheckerListener implements SignatureListener<Boolean> {
         
-        JPanel parent;
-        CheckerListener(JPanel parent) {
-            this.parent = parent;
+
+        @Override
+        public int getRowCount() {
+            return files.size();
         }
 
         @Override
-        public void setProgress(int i) {
-            jProgressBar1.setValue(i);
+        public void setValueAt(Object value, int rowIndex, int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    isFileSelected.put(files.get(rowIndex), (Boolean) value);
+                    break;
+                case 3:
+                    files.get(rowIndex).setAlgorithm((String) value);
+                    break;
+                default:
+                    super.setValueAt(value, rowIndex, columnIndex);
+                    
+            }
         }
 
         @Override
-        public void setProcessInformation(String string) {
-            jLabelCurrentAction.setText(string);
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            SignatureFile file = files.get(rowIndex);
+
+            switch (columnIndex) {
+                case 0:
+                    return (isFileSelected.containsKey(file) ? isFileSelected.get(file) : false);
+                case 1:
+                    return file.getFile().getName();
+                case 2:
+                    return file.getLastChecked();
+                case 3:
+                    return file.getAlgorithm();
+                default:
+                    return null;
+            }
         }
 
         @Override
-        public void setResult(Boolean result) {
-            javax.swing.JOptionPane.showMessageDialog(this.parent, String.valueOf(result));
+        public Class getColumnClass(int columnIndex) {
+            if (columnIndex == 0) {
+                return Boolean.class;
+            }
+            return String.class;
         }
-    }
+
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            if ((columnIndex == 0) || (columnIndex == 3)) {
+                return true;
+            }
+            return false;
+        }
+        
+ 
+        public boolean isSelected(int rowIndex) {
+            return (Boolean) this.getValueAt(rowIndex, 0);
+        }
+        
+        public ArrayList<SignatureFile> getSelectedFiles() {
+            ArrayList<SignatureFile> list = new ArrayList<SignatureFile>();
+            
+            for (int i=0; i<files.size(); i++)
+                if (this.isSelected(i))
+                    list.add(files.get(i));
+            
+            return list;
+        }
+        
+        public void setSelected(boolean selected, int rowIndex) {
+            this.setValueAt(selected, rowIndex, 0);
+        }
+
+        @Override
+        public int getColumnCount() {
+            return 4;
+        }
+        
+        @Override
+        public String getColumnName(int columnIndex) {
+            return columnName[columnIndex];
+        }
+        
+        public void remove(SignatureFile file) {
+            this.isFileSelected.remove(file);
+            files.remove(file);
+        }
+    };
 
     /**
      * Creates new form UserInterface
      */
     public UserInterface(JFrame parent) {
         this.parent = parent;
-        this.listModel = new DefaultListModel();
-        this.algorithm = new DefaultListModel();
-        
+
+        this.files = new ArrayList<SignatureFile>();
+        for (int i = 0; i < 4; i++) {
+            this.files.add(new SignatureFile(new File("/Users/bruno/Desktop/Programmation_Android.pdf")));
+        }
+
+        this.model = new MyModel();
+
         initComponents();
-        
-        this.jList1.setModel(this.listModel);
-        
+
+        this.jTable1.getTableHeader().setReorderingAllowed(false);
+        this.jTable1.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(new JComboBox(SignatureAlgorithm.ALGORITHMS)));
+
         this.keys = new Keys();
         try {
             keys.generation();
@@ -106,55 +168,35 @@ public class UserInterface extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextFieldPath = new javax.swing.JTextField();
-        jButtonFiles = new javax.swing.JButton();
-        jButtonLogout = new javax.swing.JButton();
-        jProgressBar1 = new javax.swing.JProgressBar();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
-        jComboBox1 = new javax.swing.JComboBox();
-        jButtonGenerate = new javax.swing.JButton();
+        jTabbedPane = new javax.swing.JTabbedPane();
+        jPanelFiles = new javax.swing.JPanel();
+        jPanelFilesActions = new javax.swing.JPanel();
+        jCheckBoxSelectAll = new javax.swing.JCheckBox();
         jButtonCheck = new javax.swing.JButton();
-        jLabelCurrentAction = new javax.swing.JLabel();
+        jButtonSign = new javax.swing.JButton();
+        jButtonFiles = new javax.swing.JButton();
+        jButtonRemove = new javax.swing.JButton();
+        jButtonLogout = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jPanel1 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        jButton1 = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jPanelQueue = new javax.swing.JPanel();
 
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
 
-        jTextFieldPath.setText("jTextField1");
-        add(jTextFieldPath, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 460, -1));
+        jPanelFiles.setLayout(new javax.swing.BoxLayout(jPanelFiles, javax.swing.BoxLayout.PAGE_AXIS));
 
-        jButtonFiles.setText("File(s)");
-        jButtonFiles.addActionListener(new java.awt.event.ActionListener() {
+        jCheckBoxSelectAll.setText("Select all");
+        jCheckBoxSelectAll.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonFilesActionPerformed(evt);
+                jCheckBoxSelectAllActionPerformed(evt);
             }
         });
-        add(jButtonFiles, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 10, -1, -1));
-
-        jButtonLogout.setText("Logout");
-        jButtonLogout.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonLogoutActionPerformed(evt);
-            }
-        });
-        add(jButtonLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 400, -1, -1));
-
-        jProgressBar1.setStringPainted(true);
-        add(jProgressBar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 390, 270, -1));
-
-        jScrollPane1.setViewportView(jList1);
-
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 240, 330));
-
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(SignatureAlgorithm.ALGORITHMS));
-        add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 230, 110, -1));
-
-        jButtonGenerate.setText("Sign");
-        jButtonGenerate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonGenerateActionPerformed(evt);
-            }
-        });
-        add(jButtonGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 80, -1, -1));
+        jPanelFilesActions.add(jCheckBoxSelectAll);
 
         jButtonCheck.setText("Check");
         jButtonCheck.addActionListener(new java.awt.event.ActionListener() {
@@ -162,38 +204,85 @@ public class UserInterface extends javax.swing.JPanel {
                 jButtonCheckActionPerformed(evt);
             }
         });
-        add(jButtonCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 150, -1, -1));
+        jPanelFilesActions.add(jButtonCheck);
 
-        jLabelCurrentAction.setText("Current action");
-        add(jLabelCurrentAction, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 420, -1, -1));
+        jButtonSign.setText("Sign");
+        jButtonSign.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSignActionPerformed(evt);
+            }
+        });
+        jPanelFilesActions.add(jButtonSign);
+
+        jButtonFiles.setText("Add File(s)");
+        jButtonFiles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFilesActionPerformed(evt);
+            }
+        });
+        jPanelFilesActions.add(jButtonFiles);
+
+        jButtonRemove.setText("Remove selected file(s)");
+        jButtonRemove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonRemoveActionPerformed(evt);
+            }
+        });
+        jPanelFilesActions.add(jButtonRemove);
+
+        jButtonLogout.setText("Logout");
+        jButtonLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonLogoutActionPerformed(evt);
+            }
+        });
+        jPanelFilesActions.add(jButtonLogout);
+
+        jPanelFiles.add(jPanelFilesActions);
+
+        jTable1.setModel(this.model);
+        jScrollPane2.setViewportView(jTable1);
+
+        jScrollPane1.setViewportView(jScrollPane2);
+
+        jPanelFiles.add(jScrollPane1);
+
+        jTabbedPane.addTab("FIles", jPanelFiles);
+
+        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.PAGE_AXIS));
+
+        jButton1.setText("Clean Queue");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton1);
+
+        jPanel1.add(jPanel2);
+
+        jPanelQueue.setLayout(new javax.swing.BoxLayout(jPanelQueue, javax.swing.BoxLayout.PAGE_AXIS));
+        jScrollPane3.setViewportView(jPanelQueue);
+
+        jPanel1.add(jScrollPane3);
+
+        jTabbedPane.addTab("Queue", jPanel1);
+
+        add(jTabbedPane);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFilesActionPerformed
         Logger.getLogger(UserInterface.class.getName()).log(Level.FINE, "FileChooser");
         JFileChooser f = new JFileChooser();
-
         f.setMultiSelectionEnabled(true);
+        
         if (f.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 
             File[] fs = f.getSelectedFiles();
 
-            this.listModel.clear();
-            for (File fi : fs) {
-                this.listModel.addElement(fi.getName());
-            }
-
-            this.jList1.setSelectedIndex(0);
-
-
-
-
-            this.jTextFieldPath.setText(fs[0].getAbsolutePath());
-            for (int i = 1; i < fs.length; ++i) {
-
-                fs[i].getName();
-                fs[i].getAbsolutePath();
-
-            }
+            for (File fi : fs)
+                this.files.add(new SignatureFile(fi)); 
+            this.model.fireTableDataChanged();
         }
     }//GEN-LAST:event_jButtonFilesActionPerformed
 
@@ -203,28 +292,73 @@ public class UserInterface extends javax.swing.JPanel {
         this.parent.pack();
     }//GEN-LAST:event_jButtonLogoutActionPerformed
 
-    private void jButtonGenerateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGenerateActionPerformed
-        SignatureGenerator generator = new SignatureGenerator();
-        generator.setSignatureListener(new GeneratorListener(this));
-        generator.execute(fileName, keys.getPrivateKey(), SignatureAlgorithm.ALGORITHMS[1]);
-    }//GEN-LAST:event_jButtonGenerateActionPerformed
+    private void jButtonSignActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSignActionPerformed
+
+        this.jTabbedPane.setSelectedIndex(1);
+        
+        for (int i=0; i<this.model.getRowCount(); i++) {
+            if (this.model.isSelected(i)) {
+                SignatureFileView sfv = new SignatureFileView(this.files.get(i));
+                this.jPanelQueue.add(sfv);
+                SignatureGenerator generator = new SignatureGenerator();
+                generator.setSignatureListener(sfv.new GeneratorListener(sfv));
+                generator.execute(this.files.get(i).getFile().getAbsolutePath(), keys.getPrivateKey(), this.files.get(i).getAlgorithm());
+            }
+        }
+    }//GEN-LAST:event_jButtonSignActionPerformed
 
     private void jButtonCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCheckActionPerformed
-        SignatureChecker checker = new SignatureChecker();
-        checker.setSignatureListener(new CheckerListener(this));
-        checker.execute(fileName, signature, keys.getPublicKey(), SignatureAlgorithm.ALGORITHMS[1]);        
+ 
+        this.jTabbedPane.setSelectedIndex(1);
         
+        for (int i=0; i<this.model.getRowCount(); i++) {
+            if (this.model.isSelected(i)) {
+                SignatureFileView sfv = new SignatureFileView(this.files.get(i));
+                this.jPanelQueue.add(sfv);
+                SignatureChecker checker = new SignatureChecker();
+                checker.setSignatureListener(sfv.new CheckerListener(sfv));
+                checker.execute(this.files.get(i).getFile().getAbsolutePath(), signature, keys.getPublicKey(), this.files.get(i).getAlgorithm());
+            }
+        } 
     }//GEN-LAST:event_jButtonCheckActionPerformed
+
+    private void jCheckBoxSelectAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxSelectAllActionPerformed
+        for (int i=0; i<this.model.getRowCount(); i++)
+            this.model.setSelected(this.jCheckBoxSelectAll.isSelected(),i);
+        this.model.fireTableDataChanged();
+    }//GEN-LAST:event_jCheckBoxSelectAllActionPerformed
+
+    private void jButtonRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRemoveActionPerformed
+        Iterator<SignatureFile> it = this.model.getSelectedFiles().iterator();
+        
+        while (it.hasNext())
+                this.model.remove(it.next());
+        this.model.fireTableDataChanged();
+        
+    }//GEN-LAST:event_jButtonRemoveActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        this.jPanelQueue.removeAll();
+        this.jPanelQueue.updateUI();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonCheck;
     private javax.swing.JButton jButtonFiles;
-    private javax.swing.JButton jButtonGenerate;
     private javax.swing.JButton jButtonLogout;
-    private javax.swing.JComboBox jComboBox1;
-    private javax.swing.JLabel jLabelCurrentAction;
-    private javax.swing.JList jList1;
-    private javax.swing.JProgressBar jProgressBar1;
+    private javax.swing.JButton jButtonRemove;
+    private javax.swing.JButton jButtonSign;
+    private javax.swing.JCheckBox jCheckBoxSelectAll;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanelFiles;
+    private javax.swing.JPanel jPanelFilesActions;
+    private javax.swing.JPanel jPanelQueue;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextFieldPath;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTabbedPane jTabbedPane;
+    private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
 }

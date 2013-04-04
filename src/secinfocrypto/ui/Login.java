@@ -34,7 +34,7 @@ public class Login extends javax.swing.JPanel {
     private void initComponents() {
 
         jDialog1 = new javax.swing.JDialog();
-        jTextFieldPassword = new javax.swing.JTextField();
+        jTextFieldLogin = new javax.swing.JTextField();
         jButtonLogin = new javax.swing.JButton();
         jPasswordField = new javax.swing.JPasswordField();
 
@@ -50,7 +50,7 @@ public class Login extends javax.swing.JPanel {
         );
 
         setLayout(new java.awt.BorderLayout());
-        add(jTextFieldPassword, java.awt.BorderLayout.PAGE_START);
+        add(jTextFieldLogin, java.awt.BorderLayout.PAGE_START);
 
         jButtonLogin.setText("Login");
         jButtonLogin.addActionListener(new java.awt.event.ActionListener() {
@@ -74,6 +74,6 @@ public class Login extends javax.swing.JPanel {
     private javax.swing.JButton jButtonLogin;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JPasswordField jPasswordField;
-    private javax.swing.JTextField jTextFieldPassword;
+    private javax.swing.JTextField jTextFieldLogin;
     // End of variables declaration//GEN-END:variables
 }
