@@ -17,6 +17,7 @@ public class SignatureFile {
     private byte[] signature;
     private String algorithm;
     private Date lastChecked;
+    private boolean lastTestResult;
     
     public SignatureFile(File file) {
         this.file = file;
@@ -43,13 +44,20 @@ public class SignatureFile {
         return signature;
     }
     
-    public void setSignature(String algorithm, byte[] signature) {
-        this.algorithm = algorithm;
+    public void setSignature(byte[] signature) {
         this.signature = signature;
-        this.lastChecked = new Date();
     }
 
-    public Date getLastChecked() {
+    public Date getLastCheckedDate() {
         return lastChecked;
+    }
+    
+    public void setLastTestResult(boolean result) {
+        this.lastTestResult = result;
+        this.lastChecked = new Date();
+    }
+    
+    public boolean getLastTestResult() {
+        return this.lastTestResult;
     }
 }

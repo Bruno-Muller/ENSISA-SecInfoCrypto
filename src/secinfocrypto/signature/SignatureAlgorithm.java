@@ -12,12 +12,10 @@ public abstract class SignatureAlgorithm<Result> {
 
     public static final String[] ALGORITHMS = {"NONEwithRSA", "MD2withRSA", "MD5withRSA", "SHA1withRSA", "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "NONEwithDSA", "SHA1withDSA", "NONEwithECDSA", "SHA1withECDSA", "SHA256withECDSA", "SHA384withECDSA", "SHA512withECDSA"};
     protected SignatureListener signatureListener;
-    protected String fileName;
-    protected String signatureAlgorithm;
+    protected SignatureFile file;
 
-    protected void execute(String fileName, String signatureAlgorithm) {
-        this.fileName = fileName;
-        this.signatureAlgorithm = signatureAlgorithm;
+    protected void execute(SignatureFile file) {
+        this.file = file;
 
         new Thread(new Runnable() {
             @Override

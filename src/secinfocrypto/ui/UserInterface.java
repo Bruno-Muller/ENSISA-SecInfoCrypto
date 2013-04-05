@@ -37,7 +37,7 @@ public class UserInterface extends javax.swing.JPanel {
     class MyModel extends AbstractTableModel {
 
         private HashMap<SignatureFile, Boolean> isFileSelected;
-        private String[] columnName = {"Selected", "Name", "Last date check date", "Algorithm"};
+        private String[] columnName = {"Selected", "Name", "Last test", "Last check date", "Algorithm"};
         
         MyModel() {
             isFileSelected = new HashMap<SignatureFile, Boolean>();
@@ -55,7 +55,7 @@ public class UserInterface extends javax.swing.JPanel {
                 case 0:
                     isFileSelected.put(files.get(rowIndex), (Boolean) value);
                     break;
-                case 3:
+                case 4:
                     files.get(rowIndex).setAlgorithm((String) value);
                     break;
                 default:
@@ -74,8 +74,10 @@ public class UserInterface extends javax.swing.JPanel {
                 case 1:
                     return file.getFile().getName();
                 case 2:
-                    return file.getLastChecked();
+                    return file.getLastTestResult();
                 case 3:
+                    return file.getLastCheckedDate();
+                case 4:
                     return file.getAlgorithm();
                 default:
                     return null;
@@ -92,7 +94,7 @@ public class UserInterface extends javax.swing.JPanel {
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            if ((columnIndex == 0) || (columnIndex == 3)) {
+            if ((columnIndex == 0) || (columnIndex == 4)) {
                 return true;
             }
             return false;
@@ -119,7 +121,7 @@ public class UserInterface extends javax.swing.JPanel {
 
         @Override
         public int getColumnCount() {
-            return 4;
+            return 5;
         }
         
         @Override
@@ -148,8 +150,8 @@ public class UserInterface extends javax.swing.JPanel {
 
         initComponents();
 
-        this.jTable1.getTableHeader().setReorderingAllowed(false);
-        this.jTable1.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(new JComboBox(SignatureAlgorithm.ALGORITHMS)));
+        this.jTable.getTableHeader().setReorderingAllowed(false);
+        this.jTable.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(new JComboBox(SignatureAlgorithm.ALGORITHMS)));
 
         this.keys = new Keys();
         try {
@@ -169,7 +171,7 @@ public class UserInterface extends javax.swing.JPanel {
     private void initComponents() {
 
         jTabbedPane = new javax.swing.JTabbedPane();
-        jPanelFiles = new javax.swing.JPanel();
+        jPanelTabFiles = new javax.swing.JPanel();
         jPanelFilesActions = new javax.swing.JPanel();
         jCheckBoxSelectAll = new javax.swing.JCheckBox();
         jButtonCheck = new javax.swing.JButton();
@@ -179,16 +181,16 @@ public class UserInterface extends javax.swing.JPanel {
         jButtonLogout = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
+        jTable = new javax.swing.JTable();
+        jPanelTabQueue = new javax.swing.JPanel();
+        jPanelQueueActions = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         jPanelQueue = new javax.swing.JPanel();
 
         setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
 
-        jPanelFiles.setLayout(new javax.swing.BoxLayout(jPanelFiles, javax.swing.BoxLayout.PAGE_AXIS));
+        jPanelTabFiles.setLayout(new javax.swing.BoxLayout(jPanelTabFiles, javax.swing.BoxLayout.PAGE_AXIS));
 
         jCheckBoxSelectAll.setText("Select all");
         jCheckBoxSelectAll.addActionListener(new java.awt.event.ActionListener() {
@@ -238,18 +240,18 @@ public class UserInterface extends javax.swing.JPanel {
         });
         jPanelFilesActions.add(jButtonLogout);
 
-        jPanelFiles.add(jPanelFilesActions);
+        jPanelTabFiles.add(jPanelFilesActions);
 
-        jTable1.setModel(this.model);
-        jScrollPane2.setViewportView(jTable1);
+        jTable.setModel(this.model);
+        jScrollPane2.setViewportView(jTable);
 
         jScrollPane1.setViewportView(jScrollPane2);
 
-        jPanelFiles.add(jScrollPane1);
+        jPanelTabFiles.add(jScrollPane1);
 
-        jTabbedPane.addTab("FIles", jPanelFiles);
+        jTabbedPane.addTab("FIles", jPanelTabFiles);
 
-        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.PAGE_AXIS));
+        jPanelTabQueue.setLayout(new javax.swing.BoxLayout(jPanelTabQueue, javax.swing.BoxLayout.PAGE_AXIS));
 
         jButton1.setText("Clean Queue");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -257,16 +259,16 @@ public class UserInterface extends javax.swing.JPanel {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton1);
+        jPanelQueueActions.add(jButton1);
 
-        jPanel1.add(jPanel2);
+        jPanelTabQueue.add(jPanelQueueActions);
 
         jPanelQueue.setLayout(new javax.swing.BoxLayout(jPanelQueue, javax.swing.BoxLayout.PAGE_AXIS));
         jScrollPane3.setViewportView(jPanelQueue);
 
-        jPanel1.add(jScrollPane3);
+        jPanelTabQueue.add(jScrollPane3);
 
-        jTabbedPane.addTab("Queue", jPanel1);
+        jTabbedPane.addTab("Queue", jPanelTabQueue);
 
         add(jTabbedPane);
     }// </editor-fold>//GEN-END:initComponents
@@ -294,7 +296,7 @@ public class UserInterface extends javax.swing.JPanel {
 
     private void jButtonSignActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSignActionPerformed
 
-        this.jTabbedPane.setSelectedIndex(1);
+        this.jTabbedPane.setSelectedComponent(this.jPanelTabQueue);
         
         for (int i=0; i<this.model.getRowCount(); i++) {
             if (this.model.isSelected(i)) {
@@ -302,14 +304,14 @@ public class UserInterface extends javax.swing.JPanel {
                 this.jPanelQueue.add(sfv);
                 SignatureGenerator generator = new SignatureGenerator();
                 generator.setSignatureListener(sfv.new GeneratorListener(sfv));
-                generator.execute(this.files.get(i).getFile().getAbsolutePath(), keys.getPrivateKey(), this.files.get(i).getAlgorithm());
+                generator.execute(this.files.get(i), keys.getPrivateKey());
             }
         }
     }//GEN-LAST:event_jButtonSignActionPerformed
 
     private void jButtonCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCheckActionPerformed
  
-        this.jTabbedPane.setSelectedIndex(1);
+        this.jTabbedPane.setSelectedComponent(this.jPanelTabQueue);
         
         for (int i=0; i<this.model.getRowCount(); i++) {
             if (this.model.isSelected(i)) {
@@ -317,7 +319,7 @@ public class UserInterface extends javax.swing.JPanel {
                 this.jPanelQueue.add(sfv);
                 SignatureChecker checker = new SignatureChecker();
                 checker.setSignatureListener(sfv.new CheckerListener(sfv));
-                checker.execute(this.files.get(i).getFile().getAbsolutePath(), signature, keys.getPublicKey(), this.files.get(i).getAlgorithm());
+                checker.execute(this.files.get(i), keys.getPublicKey());
             }
         } 
     }//GEN-LAST:event_jButtonCheckActionPerformed
@@ -350,15 +352,15 @@ public class UserInterface extends javax.swing.JPanel {
     private javax.swing.JButton jButtonRemove;
     private javax.swing.JButton jButtonSign;
     private javax.swing.JCheckBox jCheckBoxSelectAll;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanelFiles;
     private javax.swing.JPanel jPanelFilesActions;
     private javax.swing.JPanel jPanelQueue;
+    private javax.swing.JPanel jPanelQueueActions;
+    private javax.swing.JPanel jPanelTabFiles;
+    private javax.swing.JPanel jPanelTabQueue;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable;
     // End of variables declaration//GEN-END:variables
 }

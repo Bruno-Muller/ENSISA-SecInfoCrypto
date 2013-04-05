@@ -19,10 +19,10 @@ public final class SignatureGenerator extends SignatureAlgorithm<byte[]> {
 
     PrivateKey priKey;
 
-    public void execute(String fileName, PrivateKey priKey, String signatureAlgorithm) {
+    public void execute(SignatureFile file, PrivateKey priKey) {
         this.priKey = priKey;
 
-        super.execute(fileName, signatureAlgorithm);
+        super.execute(file);
     }
 
     @Override
@@ -32,7 +32,7 @@ public final class SignatureGenerator extends SignatureAlgorithm<byte[]> {
 
         StringBuilder str = new StringBuilder();
         str.append("Sign file :");
-        str.append(super.fileName);
+        str.append(super.file.getFile().getName());
         str.append(" [PROCESSING]");
 
         super.getSignatureListener().setProcessInformation(str.toString());
@@ -45,12 +45,12 @@ public final class SignatureGenerator extends SignatureAlgorithm<byte[]> {
 
         try {
             // Obtention d'une instance de l'objet calculant la signature
-            Signature signer = Signature.getInstance(super.signatureAlgorithm);
+            Signature signer = Signature.getInstance(super.file.getAlgorithm());
 
             // initialisation de l'objet signant avec la clé privée priKey du signataire
             signer.initSign(this.priKey);
 
-            BufferedInputStream bin = new BufferedInputStream(new FileInputStream(super.fileName));
+            BufferedInputStream bin = new BufferedInputStream(new FileInputStream(super.file.getFile().getAbsolutePath()));
 
             // Le buffer de lecture
             byte[] buffer = new byte[1024];
@@ -84,9 +84,11 @@ public final class SignatureGenerator extends SignatureAlgorithm<byte[]> {
             return;
 
         if (result != null) {
+            super.file.setSignature(result);
+            
             StringBuilder str = new StringBuilder();
             str.append("Sign file :");
-            str.append(super.fileName);
+            str.append(super.file.getFile().getName());
             str.append(" [DONE]");
 
             super.getSignatureListener().setProcessInformation(str.toString());
