@@ -13,22 +13,18 @@ import secinfocrypto.signature.SignatureFile;
  */
 public class DataBase {
     
-    public User getUser(String login, String password) throws Exception {
+    public static User getUser(String login, char[] password) throws Exception {
         
         // TODO Login existe pas
         if (!"login".equals(login))
             throw new Exception("Wrong login");
         
         // TODO Mauvais mot de passe
-        if (!"password".equals(password))
+        if (!"password".equals(new String(password)))
             throw new Exception("Wrong password");
         
         // TODO récupérer user dans BDD
         User user = new User();
-        user.setLogin(login);
-        
-        
-        ArrayList<SignatureFile> files = user.getFiles();
         
         return user;
     }

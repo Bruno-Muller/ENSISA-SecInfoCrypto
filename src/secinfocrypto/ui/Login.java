@@ -7,6 +7,8 @@ package secinfocrypto.ui;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import secinfocrypto.user.DataBase;
+import secinfocrypto.user.User;
 
 /**
  *
@@ -50,6 +52,8 @@ public class Login extends javax.swing.JPanel {
         );
 
         setLayout(new java.awt.BorderLayout());
+
+        jTextFieldLogin.setText("login");
         add(jTextFieldLogin, java.awt.BorderLayout.PAGE_START);
 
         jButtonLogin.setText("Login");
@@ -60,14 +64,21 @@ public class Login extends javax.swing.JPanel {
         });
         add(jButtonLogin, java.awt.BorderLayout.PAGE_END);
 
-        jPasswordField.setText("jPasswordField1");
+        jPasswordField.setText("password");
         add(jPasswordField, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoginActionPerformed
-        Logger.getLogger(Login.class.getName()).log(Level.FINE, "Login");
-        this.parent.setContentPane(new UserInterface(this.parent));
-        this.parent.pack();
+        try {
+            Logger.getLogger(Login.class.getName()).log(Level.FINE, "Login");
+            
+            User user = DataBase.getUser(this.jTextFieldLogin.getText(), this.jPasswordField.getPassword());
+            
+            this.parent.setContentPane(new UserInterface(this.parent, user.getFiles()));
+            this.parent.pack();
+        } catch (Exception ex) {
+            javax.swing.JOptionPane.showMessageDialog(this.parent, ex.getMessage());
+        }
     }//GEN-LAST:event_jButtonLoginActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

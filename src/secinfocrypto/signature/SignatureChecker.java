@@ -90,7 +90,7 @@ public final class SignatureChecker extends SignatureAlgorithm<Boolean> {
             return;
 
         if (result != null) {
-            file.setLastTestResult(result);
+            file.setTestResult(result);
             
             StringBuilder str = new StringBuilder();
             str.append("Check file :");

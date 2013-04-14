@@ -20,10 +20,9 @@ public abstract class SignatureAlgorithm<Result> {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                onPreExecute();
-                Result result = doInBackground();
-                onPostExecute(result);
-
+                    onPreExecute();
+                    Result result = doInBackground();
+                    onPostExecute(result);
             }
         }).start();
     }

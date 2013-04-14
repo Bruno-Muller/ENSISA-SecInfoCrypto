@@ -37,7 +37,7 @@ public class UserInterface extends javax.swing.JPanel {
     class MyModel extends AbstractTableModel {
 
         private HashMap<SignatureFile, Boolean> isFileSelected;
-        private String[] columnName = {"Selected", "Name", "Last test", "Last check date", "Algorithm"};
+        private String[] columnName = {"Selected", "Name", "Last test", "Last check date", "Last sign date", "Algorithm"};
         
         MyModel() {
             isFileSelected = new HashMap<SignatureFile, Boolean>();
@@ -55,7 +55,7 @@ public class UserInterface extends javax.swing.JPanel {
                 case 0:
                     isFileSelected.put(files.get(rowIndex), (Boolean) value);
                     break;
-                case 4:
+                case 5:
                     files.get(rowIndex).setAlgorithm((String) value);
                     break;
                 default:
@@ -78,6 +78,8 @@ public class UserInterface extends javax.swing.JPanel {
                 case 3:
                     return file.getLastCheckedDate();
                 case 4:
+                    return file.getLastSignedDate();
+                case 5:
                     return file.getAlgorithm();
                 default:
                     return null;
@@ -94,7 +96,7 @@ public class UserInterface extends javax.swing.JPanel {
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            if ((columnIndex == 0) || (columnIndex == 4)) {
+            if ((columnIndex == 0) || (columnIndex == 5)) {
                 return true;
             }
             return false;
@@ -121,7 +123,7 @@ public class UserInterface extends javax.swing.JPanel {
 
         @Override
         public int getColumnCount() {
-            return 5;
+            return 6;
         }
         
         @Override
@@ -138,20 +140,17 @@ public class UserInterface extends javax.swing.JPanel {
     /**
      * Creates new form UserInterface
      */
-    public UserInterface(JFrame parent) {
+    public UserInterface(JFrame parent, ArrayList<SignatureFile> files) {
         this.parent = parent;
 
-        this.files = new ArrayList<SignatureFile>();
-        for (int i = 0; i < 4; i++) {
-            this.files.add(new SignatureFile(new File("/Users/bruno/Desktop/Programmation_Android.pdf")));
-        }
+        this.files = files;
 
         this.model = new MyModel();
 
         initComponents();
 
         this.jTable.getTableHeader().setReorderingAllowed(false);
-        this.jTable.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(new JComboBox(SignatureAlgorithm.ALGORITHMS)));
+        this.jTable.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(SignatureAlgorithm.ALGORITHMS)));
 
         this.keys = new Keys();
         try {
@@ -343,7 +342,7 @@ public class UserInterface extends javax.swing.JPanel {
         this.jPanelQueue.removeAll();
         this.jPanelQueue.updateUI();
     }//GEN-LAST:event_jButton1ActionPerformed
-
+       
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonCheck;

@@ -8,6 +8,7 @@ import java.awt.Color;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import secinfocrypto.signature.SignatureFile;
@@ -43,7 +44,6 @@ public class SignatureFileView extends JPanel {
 
         @Override
         public void setResult(byte[] result) {
-            javax.swing.JOptionPane.showMessageDialog(this.parent, String.valueOf(result.length) + " bytes");
         }
 
         @Override
@@ -84,7 +84,8 @@ public class SignatureFileView extends JPanel {
 
         @Override
         public void setResult(Boolean result) {
-            javax.swing.JOptionPane.showMessageDialog(this.parent, String.valueOf(result));
+            if (!result)
+                JOptionPane.showMessageDialog(this.parent, "Wrong signature : " + file.getFile().getName());
         }
 
         @Override

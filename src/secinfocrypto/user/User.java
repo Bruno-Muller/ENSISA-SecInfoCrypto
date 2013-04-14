@@ -4,6 +4,7 @@
  */
 package secinfocrypto.user;
 
+import java.io.File;
 import java.util.ArrayList;
 import secinfocrypto.signature.Keys;
 import secinfocrypto.signature.SignatureFile;
@@ -20,6 +21,11 @@ public class User {
     
     User() {
         this.files = new ArrayList<SignatureFile>();
+         
+        for (int i = 0; i < 4; i++) {
+            this.files.add(new SignatureFile(new File("/Users/bruno/Desktop/Programmation_Android.pdf")));
+        }
+        
     }
     
     public void setLogin(String login) {
