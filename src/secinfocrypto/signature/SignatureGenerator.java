@@ -8,6 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.security.PrivateKey;
 import java.security.Signature;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,12 +80,13 @@ public final class SignatureGenerator extends SignatureAlgorithm<byte[]> {
     }
 
     @Override
-    protected void onPostExecute(byte[] result) {
+    protected void onPostExecute(byte[] result) { 
         if (super.getSignatureListener() == null)
             return;
 
         if (result != null) {
             super.file.setSignature(result);
+            super.file.setLastSignedDate(new Date());
             
             StringBuilder str = new StringBuilder();
             str.append("Sign file :");

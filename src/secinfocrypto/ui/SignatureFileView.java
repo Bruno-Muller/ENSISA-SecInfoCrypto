@@ -5,6 +5,8 @@
 package secinfocrypto.ui;
 
 import java.awt.Color;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -13,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import secinfocrypto.signature.SignatureFile;
 import secinfocrypto.signature.SignatureListener;
+import secinfocrypto.user.DataBase;
 
 /**
  *
@@ -52,6 +55,11 @@ public class SignatureFileView extends JPanel {
 
         @Override
         public void processEnd() {
+            try {
+                DataBase.getInstance().save();
+            } catch (Exception ex) {
+                Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
         @Override
@@ -84,8 +92,9 @@ public class SignatureFileView extends JPanel {
 
         @Override
         public void setResult(Boolean result) {
-            if (!result)
+            if (!result) {
                 JOptionPane.showMessageDialog(this.parent, "Wrong signature : " + file.getFile().getName());
+            }
         }
 
         @Override
@@ -94,6 +103,12 @@ public class SignatureFileView extends JPanel {
 
         @Override
         public void processEnd() {
+            try {
+                DataBase.getInstance().save();
+            } catch (Exception ex) {
+                Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
         }
 
         @Override

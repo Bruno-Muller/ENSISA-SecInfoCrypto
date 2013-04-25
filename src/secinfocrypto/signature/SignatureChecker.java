@@ -8,6 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,6 +92,7 @@ public final class SignatureChecker extends SignatureAlgorithm<Boolean> {
 
         if (result != null) {
             file.setTestResult(result);
+            file.setLastCheckedDate(new Date());
             
             StringBuilder str = new StringBuilder();
             str.append("Check file :");

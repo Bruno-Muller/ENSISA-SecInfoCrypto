@@ -16,16 +16,19 @@ import secinfocrypto.signature.SignatureFile;
 public class User {
     
     private String login;
+    private String password;
     private ArrayList<SignatureFile> files;
     private Keys keys;
     
     User() {
-        this.files = new ArrayList<SignatureFile>();
-         
-        for (int i = 0; i < 4; i++) {
-            this.files.add(new SignatureFile(new File("/Users/bruno/Desktop/Programmation_Android.pdf")));
-        }
-        
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    
+    public String getPassword() {
+        return this.password;
     }
     
     public void setLogin(String login) {
@@ -36,11 +39,19 @@ public class User {
         return this.login;
     }
     
+    public void setKeys(Keys keys) {
+        this.keys = keys;
+    }
+    
     public Keys getKeys() {
         return this.keys;
     }
     
     public ArrayList<SignatureFile> getFiles() {
         return this.files;
+    }
+    
+    public void setFiles(ArrayList<SignatureFile> files) {
+        this.files = files;
     }
 }

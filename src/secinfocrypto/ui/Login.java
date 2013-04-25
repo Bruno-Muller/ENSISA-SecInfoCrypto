@@ -72,11 +72,14 @@ public class Login extends javax.swing.JPanel {
         try {
             Logger.getLogger(Login.class.getName()).log(Level.FINE, "Login");
             
-            User user = DataBase.getUser(this.jTextFieldLogin.getText(), this.jPasswordField.getPassword());
             
-            this.parent.setContentPane(new UserInterface(this.parent, user.getFiles()));
+            DataBase dataBase = DataBase.getInstance();
+            User user = dataBase.getUser(this.jTextFieldLogin.getText(), new String(this.jPasswordField.getPassword()));
+            
+            this.parent.setContentPane(new UserInterface(this.parent, user));
             this.parent.pack();
         } catch (Exception ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
             javax.swing.JOptionPane.showMessageDialog(this.parent, ex.getMessage());
         }
     }//GEN-LAST:event_jButtonLoginActionPerformed

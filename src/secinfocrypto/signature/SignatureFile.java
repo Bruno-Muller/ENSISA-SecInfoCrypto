@@ -25,7 +25,6 @@ public class SignatureFile {
 
     public void setFile(File file) {
         this.file = file;
-        // TODO algorithm,signature null ?
     }
     
     public File getFile() {
@@ -46,11 +45,18 @@ public class SignatureFile {
     
     public void setSignature(byte[] signature) {
         this.signature = signature;
-        this.lastSigned = new Date();
     }
 
+    public void setLastCheckedDate(Date date) {
+        this.lastChecked = new Date();
+    }
+    
     public Date getLastCheckedDate() {
         return this.lastChecked;
+    }
+    
+    public void setLastSignedDate(Date date) {
+        this.lastSigned = new Date();
     }
     
     public Date getLastSignedDate() {
@@ -59,7 +65,6 @@ public class SignatureFile {
     
     public void setTestResult(boolean result) {
         this.lastTestResult = result;
-        this.lastChecked = new Date();
     }
     
     public boolean getLastTestResult() {

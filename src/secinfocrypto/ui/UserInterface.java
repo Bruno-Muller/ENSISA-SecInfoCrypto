@@ -6,6 +6,7 @@ package secinfocrypto.ui;
 
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,11 +17,15 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.table.AbstractTableModel;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 import secinfocrypto.signature.Keys;
 import secinfocrypto.signature.SignatureAlgorithm;
 import secinfocrypto.signature.SignatureChecker;
 import secinfocrypto.signature.SignatureFile;
 import secinfocrypto.signature.SignatureGenerator;
+import secinfocrypto.user.DataBase;
+import secinfocrypto.user.User;
 
 /**
  *
@@ -29,9 +34,7 @@ import secinfocrypto.signature.SignatureGenerator;
 public class UserInterface extends javax.swing.JPanel {
 
     private JFrame parent;
-    private Keys keys;
-    byte[] signature;
-    private ArrayList<SignatureFile> files;
+    private User user;
     private MyModel model;
 
     class MyModel extends AbstractTableModel {
@@ -46,17 +49,17 @@ public class UserInterface extends javax.swing.JPanel {
 
         @Override
         public int getRowCount() {
-            return files.size();
+            return user.getFiles().size();
         }
 
         @Override
         public void setValueAt(Object value, int rowIndex, int columnIndex) {
             switch (columnIndex) {
                 case 0:
-                    isFileSelected.put(files.get(rowIndex), (Boolean) value);
+                    isFileSelected.put(user.getFiles().get(rowIndex), (Boolean) value);
                     break;
                 case 5:
-                    files.get(rowIndex).setAlgorithm((String) value);
+                    user.getFiles().get(rowIndex).setAlgorithm((String) value);
                     break;
                 default:
                     super.setValueAt(value, rowIndex, columnIndex);
@@ -66,7 +69,7 @@ public class UserInterface extends javax.swing.JPanel {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            SignatureFile file = files.get(rowIndex);
+            SignatureFile file = user.getFiles().get(rowIndex);
 
             switch (columnIndex) {
                 case 0:
@@ -110,9 +113,9 @@ public class UserInterface extends javax.swing.JPanel {
         public ArrayList<SignatureFile> getSelectedFiles() {
             ArrayList<SignatureFile> list = new ArrayList<SignatureFile>();
             
-            for (int i=0; i<files.size(); i++)
+            for (int i=0; i<user.getFiles().size(); i++)
                 if (this.isSelected(i))
-                    list.add(files.get(i));
+                    list.add(user.getFiles().get(i));
             
             return list;
         }
@@ -133,17 +136,17 @@ public class UserInterface extends javax.swing.JPanel {
         
         public void remove(SignatureFile file) {
             this.isFileSelected.remove(file);
-            files.remove(file);
+            user.getFiles().remove(file);
         }
     };
 
     /**
      * Creates new form UserInterface
      */
-    public UserInterface(JFrame parent, ArrayList<SignatureFile> files) {
+    public UserInterface(JFrame parent, User user) {
         this.parent = parent;
 
-        this.files = files;
+        this.user = user;
 
         this.model = new MyModel();
 
@@ -151,13 +154,6 @@ public class UserInterface extends javax.swing.JPanel {
 
         this.jTable.getTableHeader().setReorderingAllowed(false);
         this.jTable.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(SignatureAlgorithm.ALGORITHMS)));
-
-        this.keys = new Keys();
-        try {
-            keys.generation();
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     /**
@@ -282,8 +278,14 @@ public class UserInterface extends javax.swing.JPanel {
             File[] fs = f.getSelectedFiles();
 
             for (File fi : fs)
-                this.files.add(new SignatureFile(fi)); 
+                this.user.getFiles().add(new SignatureFile(fi)); 
             this.model.fireTableDataChanged();
+        }
+        
+        try {
+            DataBase.getInstance().save();
+        } catch (Exception ex) {
+            Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButtonFilesActionPerformed
 
@@ -291,6 +293,12 @@ public class UserInterface extends javax.swing.JPanel {
         Logger.getLogger(UserInterface.class.getName()).log(Level.FINE, "Logout");
         this.parent.setContentPane(new Login(this.parent));
         this.parent.pack();
+        
+        try {
+            DataBase.getInstance().save();
+        } catch (Exception ex) {
+            Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButtonLogoutActionPerformed
 
     private void jButtonSignActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSignActionPerformed
@@ -299,11 +307,11 @@ public class UserInterface extends javax.swing.JPanel {
         
         for (int i=0; i<this.model.getRowCount(); i++) {
             if (this.model.isSelected(i)) {
-                SignatureFileView sfv = new SignatureFileView(this.files.get(i));
+                SignatureFileView sfv = new SignatureFileView(this.user.getFiles().get(i));
                 this.jPanelQueue.add(sfv);
                 SignatureGenerator generator = new SignatureGenerator();
                 generator.setSignatureListener(sfv.new GeneratorListener(sfv));
-                generator.execute(this.files.get(i), keys.getPrivateKey());
+                generator.execute(this.user.getFiles().get(i), this.user.getKeys().getPrivateKey());
             }
         }
     }//GEN-LAST:event_jButtonSignActionPerformed
@@ -314,11 +322,11 @@ public class UserInterface extends javax.swing.JPanel {
         
         for (int i=0; i<this.model.getRowCount(); i++) {
             if (this.model.isSelected(i)) {
-                SignatureFileView sfv = new SignatureFileView(this.files.get(i));
+                SignatureFileView sfv = new SignatureFileView(this.user.getFiles().get(i));
                 this.jPanelQueue.add(sfv);
                 SignatureChecker checker = new SignatureChecker();
                 checker.setSignatureListener(sfv.new CheckerListener(sfv));
-                checker.execute(this.files.get(i), keys.getPublicKey());
+                checker.execute(this.user.getFiles().get(i), this.user.getKeys().getPublicKey());
             }
         } 
     }//GEN-LAST:event_jButtonCheckActionPerformed
@@ -335,6 +343,13 @@ public class UserInterface extends javax.swing.JPanel {
         while (it.hasNext())
                 this.model.remove(it.next());
         this.model.fireTableDataChanged();
+        
+        
+        try {
+            DataBase.getInstance().save();
+        } catch (Exception ex) {
+            Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }//GEN-LAST:event_jButtonRemoveActionPerformed
 
