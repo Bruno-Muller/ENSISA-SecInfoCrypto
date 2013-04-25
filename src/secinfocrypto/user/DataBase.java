@@ -8,6 +8,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
@@ -52,7 +54,7 @@ public class DataBase {
     }
 
     public User getUser(String login, String password) throws Exception {
-                
+
         // On cherche le login
         Iterator<User> it = users.iterator();
         while (it.hasNext()) {
@@ -121,20 +123,28 @@ public class DataBase {
                         if (fileNode.getNodeType() == Node.ELEMENT_NODE) {
                             Element fileElement = (Element) fileNode;
                             SignatureFile file = new SignatureFile(new File(getTagValue("path", fileElement)));
-                            
+
                             String tmp = getTagValue("algorithm", fileElement);
-                            if (tmp != null) file.setAlgorithm(tmp);
-                            
+                            if (tmp != null) {
+                                file.setAlgorithm(tmp);
+                            }
+
                             tmp = getTagValue("last_check_result", fileElement);
-                            if (tmp != null) file.setTestResult(Boolean.parseBoolean(tmp));
-                            
-                            
+                            if (tmp != null) {
+                                file.setTestResult(Boolean.parseBoolean(tmp));
+                            }
+
+
                             tmp = getTagValue("last_check_date", fileElement);
-                            if (tmp != null) file.setLastCheckedDate(new Date(Long.parseLong(tmp)));
-                            
+                            if (tmp != null) {
+                                file.setLastCheckedDate(new Date(Long.parseLong(tmp)));
+                            }
+
                             tmp = getTagValue("signature_date", fileElement);
-                            if (tmp != null)  file.setLastSignedDate(new Date(Long.parseLong(tmp)));
-                            
+                            if (tmp != null) {
+                                file.setLastSignedDate(new Date(Long.parseLong(tmp)));
+                            }
+
                             file.setSignature(getBytes("signature", fileElement));
                             files.add(file);
                         }
@@ -187,38 +197,34 @@ public class DataBase {
     private static void writeUser(BufferedWriter bw, User user) throws IOException {
         bw.newLine();
         bw.append("<user>");
-       
+
         bw.newLine();
         bw.append("<login>");
         bw.append(user.getLogin());
         bw.append("</login>");
-        
+
         bw.newLine();
         bw.append("<password>");
         bw.append(user.getPassword());
         bw.append("</password>");
-        
+
         bw.newLine();
         bw.append("<public_key>");
-        bw.newLine();
         writeBytes(bw, user.getKeys().getPublicKey().getEncoded());
-        bw.newLine();
         bw.append("</public_key>");
-        
+
         bw.newLine();
         bw.append("<private_key>");
-        bw.newLine();
         writeBytes(bw, user.getKeys().getPrivateKey().getEncoded());
-        bw.newLine();
         bw.append("</private_key>");
-        
+
         bw.newLine();
         bw.append("<files>");
-        
-        for (int i=0; i<user.getFiles().size(); i++) {
-            writeFile(bw,user.getFiles().get(i));
+
+        for (int i = 0; i < user.getFiles().size(); i++) {
+            writeFile(bw, user.getFiles().get(i));
         }
-        
+
         bw.newLine();
         bw.append("</files>");
 
@@ -229,76 +235,94 @@ public class DataBase {
     private static void writeFile(BufferedWriter bw, SignatureFile sf) throws IOException {
         bw.newLine();
         bw.append("<file>");
-            
+
         bw.newLine();
         bw.append("<path>");
         bw.append(sf.getFile().getAbsolutePath());
         bw.append("</path>");
-        
+
         bw.newLine();
         bw.append("<algorithm>");
-        if (sf.getAlgorithm() != null)
+        if (sf.getAlgorithm() != null) {
             bw.append(sf.getAlgorithm());
+        }
         bw.append("</algorithm>");
-        
+
         bw.newLine();
         bw.append("<last_check_date>");
-        if (sf.getLastCheckedDate() != null)
+        if (sf.getLastCheckedDate() != null) {
             bw.append(String.valueOf(sf.getLastCheckedDate().getTime()));
+        }
         bw.append("</last_check_date>");
-        
+
         bw.newLine();
         bw.append("<last_check_result>");
-        
+
         bw.append(String.valueOf(sf.getLastTestResult()));
         bw.append("</last_check_result>");
-        
+
         bw.newLine();
         bw.append("<signature_date>");
-        if (sf.getLastSignedDate() != null)
+        if (sf.getLastSignedDate() != null) {
             bw.append(String.valueOf(sf.getLastSignedDate().getTime()));
+        }
         bw.append("</signature_date>");
-        
+
         bw.newLine();
         bw.append("<signature>");
-        if (sf.getSignature() != null)
+        if (sf.getSignature() != null) {
             writeBytes(bw, sf.getSignature());
-        bw.newLine();
+        }
         bw.append("</signature>");
-        
-        
+
+
         bw.newLine();
         bw.append("</file>");
     }
 
     private static void writeBytes(BufferedWriter bw, byte[] tab) throws IOException {
         
-        for (int i=0; i<tab.length; i++) {
-            bw.append("<b>");
-            bw.append(String.valueOf(tab[i]));
-            bw.append("</b>");
+        for (int i = 0; i < tab.length; i++) {
+            String val = Integer.toHexString(0x000000FF & tab[i]);
+            if (val.length() < 2) val = "0" + val;
+                bw.append(val);
         }
     }
 
     private static byte[] getBytes(String sTag, Element eElement) {
-        byte[] tab = null;
-
-        Node node = eElement.getElementsByTagName(sTag).item(0);
-        if (node.getNodeType() == Node.ELEMENT_NODE) {
-            NodeList nodeList = ((Element) node).getElementsByTagName("b");
-            tab = new byte[nodeList.getLength()];
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                tab[i] = Byte.parseByte(nodeList.item(i).getChildNodes().item(0).getNodeValue());
-            }
-        }
+        
+        String str = getTagValue(sTag, eElement);
+        
+        if (str == null)
+            return null;
+        
+        byte[] tab = new byte[str.length()/2];  
+        
+        for (int i=0; i<str.length()/2; i++)
+             tab[i] = (byte) Integer.parseInt(str.substring(i*2, (i*2)+2), 16);
+           
         return tab;
     }
 
     private static String getTagValue(String sTag, Element eElement) {
         NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
         Node nValue = (Node) nlList.item(0);
-        if (nValue != null)
+        if (nValue != null) {
             return nValue.getNodeValue();
+        }
         return null;
+    }
+
+    public static String hashPassword(String password) {
+        String hashword = null;
+        try {
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            md5.update(password.getBytes());
+            BigInteger hash = new BigInteger(1, md5.digest());
+            hashword = hash.toString(16);
+        } catch (NoSuchAlgorithmException nsae) {
+// ignore
+        }
+        return hashword;
     }
 }

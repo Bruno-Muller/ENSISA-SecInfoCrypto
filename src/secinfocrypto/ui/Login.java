@@ -4,9 +4,17 @@
  */
 package secinfocrypto.ui;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
+import secinfocrypto.signature.Keys;
+import secinfocrypto.signature.SignatureFile;
 import secinfocrypto.user.DataBase;
 import secinfocrypto.user.User;
 
@@ -36,9 +44,12 @@ public class Login extends javax.swing.JPanel {
     private void initComponents() {
 
         jDialog1 = new javax.swing.JDialog();
+        jButton1 = new javax.swing.JButton();
         jTextFieldLogin = new javax.swing.JTextField();
-        jButtonLogin = new javax.swing.JButton();
         jPasswordField = new javax.swing.JPasswordField();
+        jPanel1 = new javax.swing.JPanel();
+        jButtonLogin = new javax.swing.JButton();
+        jButtonCreateUser = new javax.swing.JButton();
 
         org.jdesktop.layout.GroupLayout jDialog1Layout = new org.jdesktop.layout.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
@@ -51,10 +62,17 @@ public class Login extends javax.swing.JPanel {
             .add(0, 300, Short.MAX_VALUE)
         );
 
-        setLayout(new java.awt.BorderLayout());
+        jButton1.setText("jButton1");
+
+        setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
 
         jTextFieldLogin.setText("login");
-        add(jTextFieldLogin, java.awt.BorderLayout.PAGE_START);
+        add(jTextFieldLogin);
+
+        jPasswordField.setText("password");
+        add(jPasswordField);
+
+        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.LINE_AXIS));
 
         jButtonLogin.setText("Login");
         jButtonLogin.addActionListener(new java.awt.event.ActionListener() {
@@ -62,10 +80,17 @@ public class Login extends javax.swing.JPanel {
                 jButtonLoginActionPerformed(evt);
             }
         });
-        add(jButtonLogin, java.awt.BorderLayout.PAGE_END);
+        jPanel1.add(jButtonLogin);
 
-        jPasswordField.setText("password");
-        add(jPasswordField, java.awt.BorderLayout.CENTER);
+        jButtonCreateUser.setText("Create user");
+        jButtonCreateUser.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCreateUserActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButtonCreateUser);
+
+        add(jPanel1);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoginActionPerformed
@@ -74,7 +99,7 @@ public class Login extends javax.swing.JPanel {
             
             
             DataBase dataBase = DataBase.getInstance();
-            User user = dataBase.getUser(this.jTextFieldLogin.getText(), new String(this.jPasswordField.getPassword()));
+            User user = dataBase.getUser(this.jTextFieldLogin.getText(), DataBase.hashPassword(new String(this.jPasswordField.getPassword())));
             
             this.parent.setContentPane(new UserInterface(this.parent, user));
             this.parent.pack();
@@ -84,9 +109,59 @@ public class Login extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButtonLoginActionPerformed
 
+    private void jButtonCreateUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCreateUserActionPerformed
+        try {
+            // On vérifie que le user est unique
+
+            ArrayList<User> users = DataBase.getInstance().getUsers();
+            
+            boolean ok = true;
+            for (int i=0; i<users.size(); i++)
+                if (users.get(i).getLogin().equals(this.jTextFieldLogin.getText()))
+                    ok = false;
+            
+            if (ok) {
+                
+                User user = new User();
+                user.setLogin(this.jTextFieldLogin.getText());
+                user.setPassword(DataBase.hashPassword(new String(this.jPasswordField.getPassword())));
+                
+                // On génère les clés
+                Keys keys = new Keys();
+                keys.generation();
+                user.setKeys(keys);
+                
+                // On donne au user une liste de fichier vide
+                user.setFiles(new ArrayList<SignatureFile>());
+                
+                // On ajoute le user à la liste
+                users.add(user);
+                
+                // On sauvegarde la database
+                DataBase.getInstance().save();
+                
+                
+                
+                javax.swing.JOptionPane.showMessageDialog(this.parent, "User sucessfully created.");
+            }
+            else {
+                javax.swing.JOptionPane.showMessageDialog(this.parent, "This user already exists.");
+            }
+            
+        } catch (Exception ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        
+    }//GEN-LAST:event_jButtonCreateUserActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButtonCreateUser;
     private javax.swing.JButton jButtonLogin;
     private javax.swing.JDialog jDialog1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPasswordField jPasswordField;
     private javax.swing.JTextField jTextFieldLogin;
     // End of variables declaration//GEN-END:variables

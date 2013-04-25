@@ -20,7 +20,7 @@ public class User {
     private ArrayList<SignatureFile> files;
     private Keys keys;
     
-    User() {
+    public User() {
     }
     
     public void setPassword(String password) {

@@ -179,7 +179,7 @@ public class UserInterface extends javax.swing.JPanel {
         jTable = new javax.swing.JTable();
         jPanelTabQueue = new javax.swing.JPanel();
         jPanelQueueActions = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        jButtonCleanQueue = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         jPanelQueue = new javax.swing.JPanel();
 
@@ -248,13 +248,13 @@ public class UserInterface extends javax.swing.JPanel {
 
         jPanelTabQueue.setLayout(new javax.swing.BoxLayout(jPanelTabQueue, javax.swing.BoxLayout.PAGE_AXIS));
 
-        jButton1.setText("Clean Queue");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jButtonCleanQueue.setText("Clean Queue");
+        jButtonCleanQueue.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButtonCleanQueueActionPerformed(evt);
             }
         });
-        jPanelQueueActions.add(jButton1);
+        jPanelQueueActions.add(jButtonCleanQueue);
 
         jPanelTabQueue.add(jPanelQueueActions);
 
@@ -353,14 +353,14 @@ public class UserInterface extends javax.swing.JPanel {
         
     }//GEN-LAST:event_jButtonRemoveActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButtonCleanQueueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCleanQueueActionPerformed
         this.jPanelQueue.removeAll();
         this.jPanelQueue.updateUI();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_jButtonCleanQueueActionPerformed
        
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonCheck;
+    private javax.swing.JButton jButtonCleanQueue;
     private javax.swing.JButton jButtonFiles;
     private javax.swing.JButton jButtonLogout;
     private javax.swing.JButton jButtonRemove;
