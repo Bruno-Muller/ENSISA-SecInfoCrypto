@@ -5,8 +5,6 @@
 package secinfocrypto.ui;
 
 import java.io.File;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,9 +15,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.table.AbstractTableModel;
-import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.SAXException;
-import secinfocrypto.signature.Keys;
 import secinfocrypto.signature.SignatureAlgorithm;
 import secinfocrypto.signature.SignatureChecker;
 import secinfocrypto.signature.SignatureFile;
@@ -41,11 +36,10 @@ public class UserInterface extends javax.swing.JPanel {
 
         private HashMap<SignatureFile, Boolean> isFileSelected;
         private String[] columnName = {"Selected", "Name", "Last test", "Last check date", "Last sign date", "Algorithm"};
-        
+
         MyModel() {
             isFileSelected = new HashMap<SignatureFile, Boolean>();
         }
-        
 
         @Override
         public int getRowCount() {
@@ -63,7 +57,7 @@ public class UserInterface extends javax.swing.JPanel {
                     break;
                 default:
                     super.setValueAt(value, rowIndex, columnIndex);
-                    
+
             }
         }
 
@@ -104,22 +98,23 @@ public class UserInterface extends javax.swing.JPanel {
             }
             return false;
         }
-        
- 
+
         public boolean isSelected(int rowIndex) {
             return (Boolean) this.getValueAt(rowIndex, 0);
         }
-        
+
         public ArrayList<SignatureFile> getSelectedFiles() {
             ArrayList<SignatureFile> list = new ArrayList<SignatureFile>();
-            
-            for (int i=0; i<user.getFiles().size(); i++)
-                if (this.isSelected(i))
+
+            for (int i = 0; i < user.getFiles().size(); i++) {
+                if (this.isSelected(i)) {
                     list.add(user.getFiles().get(i));
-            
+                }
+            }
+
             return list;
         }
-        
+
         public void setSelected(boolean selected, int rowIndex) {
             this.setValueAt(selected, rowIndex, 0);
         }
@@ -128,12 +123,12 @@ public class UserInterface extends javax.swing.JPanel {
         public int getColumnCount() {
             return 6;
         }
-        
+
         @Override
         public String getColumnName(int columnIndex) {
             return columnName[columnIndex];
         }
-        
+
         public void remove(SignatureFile file) {
             this.isFileSelected.remove(file);
             user.getFiles().remove(file);
@@ -272,16 +267,17 @@ public class UserInterface extends javax.swing.JPanel {
         Logger.getLogger(UserInterface.class.getName()).log(Level.FINE, "FileChooser");
         JFileChooser f = new JFileChooser();
         f.setMultiSelectionEnabled(true);
-        
+
         if (f.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 
             File[] fs = f.getSelectedFiles();
 
-            for (File fi : fs)
-                this.user.getFiles().add(new SignatureFile(fi)); 
+            for (File fi : fs) {
+                this.user.getFiles().add(new SignatureFile(fi));
+            }
             this.model.fireTableDataChanged();
         }
-        
+
         try {
             DataBase.getInstance().save();
         } catch (Exception ex) {
@@ -293,7 +289,7 @@ public class UserInterface extends javax.swing.JPanel {
         Logger.getLogger(UserInterface.class.getName()).log(Level.FINE, "Logout");
         this.parent.setContentPane(new Login(this.parent));
         this.parent.pack();
-        
+
         try {
             DataBase.getInstance().save();
         } catch (Exception ex) {
@@ -304,8 +300,8 @@ public class UserInterface extends javax.swing.JPanel {
     private void jButtonSignActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSignActionPerformed
 
         this.jTabbedPane.setSelectedComponent(this.jPanelTabQueue);
-        
-        for (int i=0; i<this.model.getRowCount(); i++) {
+
+        for (int i = 0; i < this.model.getRowCount(); i++) {
             if (this.model.isSelected(i)) {
                 SignatureFileView sfv = new SignatureFileView(this.user.getFiles().get(i));
                 this.jPanelQueue.add(sfv);
@@ -317,10 +313,10 @@ public class UserInterface extends javax.swing.JPanel {
     }//GEN-LAST:event_jButtonSignActionPerformed
 
     private void jButtonCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCheckActionPerformed
- 
+
         this.jTabbedPane.setSelectedComponent(this.jPanelTabQueue);
-        
-        for (int i=0; i<this.model.getRowCount(); i++) {
+
+        for (int i = 0; i < this.model.getRowCount(); i++) {
             if (this.model.isSelected(i)) {
                 SignatureFileView sfv = new SignatureFileView(this.user.getFiles().get(i));
                 this.jPanelQueue.add(sfv);
@@ -328,36 +324,37 @@ public class UserInterface extends javax.swing.JPanel {
                 checker.setSignatureListener(sfv.new CheckerListener(sfv));
                 checker.execute(this.user.getFiles().get(i), this.user.getKeys().getPublicKey());
             }
-        } 
+        }
     }//GEN-LAST:event_jButtonCheckActionPerformed
 
     private void jCheckBoxSelectAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxSelectAllActionPerformed
-        for (int i=0; i<this.model.getRowCount(); i++)
-            this.model.setSelected(this.jCheckBoxSelectAll.isSelected(),i);
+        for (int i = 0; i < this.model.getRowCount(); i++) {
+            this.model.setSelected(this.jCheckBoxSelectAll.isSelected(), i);
+        }
         this.model.fireTableDataChanged();
     }//GEN-LAST:event_jCheckBoxSelectAllActionPerformed
 
     private void jButtonRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRemoveActionPerformed
         Iterator<SignatureFile> it = this.model.getSelectedFiles().iterator();
-        
-        while (it.hasNext())
-                this.model.remove(it.next());
+
+        while (it.hasNext()) {
+            this.model.remove(it.next());
+        }
         this.model.fireTableDataChanged();
-        
-        
+
+
         try {
             DataBase.getInstance().save();
         } catch (Exception ex) {
             Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }//GEN-LAST:event_jButtonRemoveActionPerformed
 
     private void jButtonCleanQueueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCleanQueueActionPerformed
         this.jPanelQueue.removeAll();
         this.jPanelQueue.updateUI();
     }//GEN-LAST:event_jButtonCleanQueueActionPerformed
-       
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonCheck;
     private javax.swing.JButton jButtonCleanQueue;

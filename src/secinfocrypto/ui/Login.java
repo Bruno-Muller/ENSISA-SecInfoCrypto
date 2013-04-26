@@ -4,15 +4,10 @@
  */
 package secinfocrypto.ui;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
-import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.SAXException;
 import secinfocrypto.signature.Keys;
 import secinfocrypto.signature.SignatureFile;
 import secinfocrypto.user.DataBase;
@@ -25,7 +20,7 @@ import secinfocrypto.user.User;
 public class Login extends javax.swing.JPanel {
 
     private JFrame parent;
-    
+
     /**
      * Creates new form Login
      */
@@ -96,11 +91,11 @@ public class Login extends javax.swing.JPanel {
     private void jButtonLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoginActionPerformed
         try {
             Logger.getLogger(Login.class.getName()).log(Level.FINE, "Login");
-            
-            
+
+
             DataBase dataBase = DataBase.getInstance();
             User user = dataBase.getUser(this.jTextFieldLogin.getText(), DataBase.hashPassword(new String(this.jPasswordField.getPassword())));
-            
+
             this.parent.setContentPane(new UserInterface(this.parent, user));
             this.parent.pack();
         } catch (Exception ex) {
@@ -114,48 +109,48 @@ public class Login extends javax.swing.JPanel {
             // On vérifie que le user est unique
 
             ArrayList<User> users = DataBase.getInstance().getUsers();
-            
+
             boolean ok = true;
-            for (int i=0; i<users.size(); i++)
-                if (users.get(i).getLogin().equals(this.jTextFieldLogin.getText()))
+            for (int i = 0; i < users.size(); i++) {
+                if (users.get(i).getLogin().equals(this.jTextFieldLogin.getText())) {
                     ok = false;
-            
+                }
+            }
+
             if (ok) {
-                
+
                 User user = new User();
                 user.setLogin(this.jTextFieldLogin.getText());
                 user.setPassword(DataBase.hashPassword(new String(this.jPasswordField.getPassword())));
-                
+
                 // On génère les clés
                 Keys keys = new Keys();
                 keys.generation();
                 user.setKeys(keys);
-                
+
                 // On donne au user une liste de fichier vide
                 user.setFiles(new ArrayList<SignatureFile>());
-                
+
                 // On ajoute le user à la liste
                 users.add(user);
-                
+
                 // On sauvegarde la database
                 DataBase.getInstance().save();
-                
-                
-                
+
+
+
                 javax.swing.JOptionPane.showMessageDialog(this.parent, "User sucessfully created.");
-            }
-            else {
+            } else {
                 javax.swing.JOptionPane.showMessageDialog(this.parent, "This user already exists.");
             }
-            
+
         } catch (Exception ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
-        
-    }//GEN-LAST:event_jButtonCreateUserActionPerformed
 
+
+
+    }//GEN-LAST:event_jButtonCreateUserActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonCreateUser;

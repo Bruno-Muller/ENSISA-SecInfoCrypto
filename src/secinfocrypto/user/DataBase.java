@@ -281,26 +281,30 @@ public class DataBase {
     }
 
     private static void writeBytes(BufferedWriter bw, byte[] tab) throws IOException {
-        
+
         for (int i = 0; i < tab.length; i++) {
             String val = Integer.toHexString(0x000000FF & tab[i]);
-            if (val.length() < 2) val = "0" + val;
-                bw.append(val);
+            if (val.length() < 2) {
+                val = "0" + val;
+            }
+            bw.append(val);
         }
     }
 
     private static byte[] getBytes(String sTag, Element eElement) {
-        
+
         String str = getTagValue(sTag, eElement);
-        
-        if (str == null)
+
+        if (str == null) {
             return null;
-        
-        byte[] tab = new byte[str.length()/2];  
-        
-        for (int i=0; i<str.length()/2; i++)
-             tab[i] = (byte) Integer.parseInt(str.substring(i*2, (i*2)+2), 16);
-           
+        }
+
+        byte[] tab = new byte[str.length() / 2];
+
+        for (int i = 0; i < str.length() / 2; i++) {
+            tab[i] = (byte) Integer.parseInt(str.substring(i * 2, (i * 2) + 2), 16);
+        }
+
         return tab;
     }
 

@@ -4,8 +4,6 @@
  */
 package secinfocrypto.ui;
 
-import secinfocrypto.user.DataBase;
-
 /**
  *
  * @author bruno

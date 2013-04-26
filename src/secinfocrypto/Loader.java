@@ -6,6 +6,7 @@ package secinfocrypto;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import secinfocrypto.cli.Crypto_Sujet5;
 import secinfocrypto.ui.MainWindow;
 
 /**
@@ -19,7 +20,7 @@ public abstract class Loader {
      */
     public static void main(String[] args) {
         if (args.length > 0 && args[0].equals("-nogui")) {
-            System.out.println("Command Line Interface");
+            Crypto_Sujet5.main(args);
         } else {
             Logger.getLogger(Loader.class.getName()).log(Level.FINE, "Graphical Interface");
             MainWindow.main(args);

@@ -28,8 +28,9 @@ public final class SignatureGenerator extends SignatureAlgorithm<byte[]> {
 
     @Override
     protected void onPreExecute() {
-        if (super.getSignatureListener() == null)
+        if (super.getSignatureListener() == null) {
             return;
+        }
 
         StringBuilder str = new StringBuilder();
         str.append("Sign file :");
@@ -72,22 +73,24 @@ public final class SignatureGenerator extends SignatureAlgorithm<byte[]> {
             //return signature;
         } catch (Exception ex) {
             Logger.getLogger(SignatureGenerator.class.getName()).log(Level.SEVERE, null, ex);
-            if (super.getSignatureListener() != null)
+            if (super.getSignatureListener() != null) {
                 super.getSignatureListener().exception(ex);
+            }
         } finally {
             return signature;
         }
     }
 
     @Override
-    protected void onPostExecute(byte[] result) { 
-        if (super.getSignatureListener() == null)
+    protected void onPostExecute(byte[] result) {
+        if (super.getSignatureListener() == null) {
             return;
+        }
 
         if (result != null) {
             super.file.setSignature(result);
             super.file.setLastSignedDate(new Date());
-            
+
             StringBuilder str = new StringBuilder();
             str.append("Sign file :");
             str.append(super.file.getFile().getName());

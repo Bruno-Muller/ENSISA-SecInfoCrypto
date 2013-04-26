@@ -27,8 +27,9 @@ public final class SignatureChecker extends SignatureAlgorithm<Boolean> {
 
     @Override
     protected void onPreExecute() {
-        if (super.getSignatureListener() == null)
+        if (super.getSignatureListener() == null) {
             return;
+        }
 
         StringBuilder str = new StringBuilder();
         str.append("Check file :");
@@ -74,8 +75,9 @@ public final class SignatureChecker extends SignatureAlgorithm<Boolean> {
 
         } catch (Exception ex) {
             Logger.getLogger(SignatureChecker.class.getName()).log(Level.SEVERE, null, ex);
-            if (super.getSignatureListener() != null)
+            if (super.getSignatureListener() != null) {
                 super.getSignatureListener().exception(ex);
+            }
         } finally {
             // verif = true  : la signature recalculée est identique à signature
             // le document peut être accepté
@@ -87,13 +89,14 @@ public final class SignatureChecker extends SignatureAlgorithm<Boolean> {
 
     @Override
     protected void onPostExecute(Boolean result) {
-        if (super.getSignatureListener() == null)
+        if (super.getSignatureListener() == null) {
             return;
+        }
 
         if (result != null) {
             file.setTestResult(result);
             file.setLastCheckedDate(new Date());
-            
+
             StringBuilder str = new StringBuilder();
             str.append("Check file :");
             str.append(super.file.getFile().getName());

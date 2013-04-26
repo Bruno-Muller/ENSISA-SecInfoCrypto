@@ -20,11 +20,15 @@ public abstract class SignatureAlgorithm<Result> {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                    if (signatureListener != null) signatureListener.processStart();
-                    onPreExecute();
-                    Result result = doInBackground();
-                    onPostExecute(result);
-                    if (signatureListener != null) signatureListener.processEnd();
+                if (signatureListener != null) {
+                    signatureListener.processStart();
+                }
+                onPreExecute();
+                Result result = doInBackground();
+                onPostExecute(result);
+                if (signatureListener != null) {
+                    signatureListener.processEnd();
+                }
             }
         }).start();
     }
@@ -46,10 +50,10 @@ public abstract class SignatureAlgorithm<Result> {
             this.signatureListener.setProgress(i);
         }
     }
-    
+
     protected abstract void onPreExecute();
-    
+
     protected abstract Result doInBackground();
-    
+
     protected abstract void onPostExecute(Result result);
 }
