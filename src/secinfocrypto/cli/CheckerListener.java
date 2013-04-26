@@ -49,6 +49,9 @@ public class CheckerListener implements SignatureListener<Boolean> {
         if (!result) {
             System.out.println(this.file.getFile().getName() + ": The signatures are not the same.");
         }
+        else {
+            System.out.println(this.file.getFile().getName() + ": The signatures are the same.");
+        }
     }
 
     @Override
